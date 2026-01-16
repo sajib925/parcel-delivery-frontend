@@ -1,12 +1,14 @@
-import { Outlet } from "react-router";
-import CommonLayout from "./components/layout/CommonLayout";
+import { RouterProvider } from "react-router"
+import { Toaster } from "sonner"
+import { router } from "./routes"
 
 function App() {
   return (
-    <CommonLayout>
-      <Outlet />
-    </CommonLayout>
-  );
+    <>
+      <RouterProvider router={router} />
+      <Toaster richColors />
+    </>
+  )
 }
 
-export default App;
+export default App

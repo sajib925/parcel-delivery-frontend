@@ -23,7 +23,7 @@ const registerSchema = z
       })
       .max(50),
     email: z.email(),
-    role: z.enum(["sender", "receiver"], {
+    role: z.enum(["sender", "receiver", "admin"], {
       message: "Please select a valid role" },
     ),
     password: z.string().min(8, { message: "Password is too short" }),
@@ -119,8 +119,9 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                       {...field}
                       className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
                     >
-                      <option value="SENDER">Sender</option>
-                      <option value="RECEIVER">Receiver</option>
+                      <option value="sender">Sender</option>
+                      <option value="receiver">Receiver</option>
+                      <option value="admin">Admin</option>
                     </select>
                   </FormControl>
                   <FormMessage />

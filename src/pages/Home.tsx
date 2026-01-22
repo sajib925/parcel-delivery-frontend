@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import van from "../assets/image/delivery-van.png"
 import HeroSlider from "@/components/modules/homepage/HeroSection";
@@ -7,13 +6,13 @@ import FeaturesSection from "@/components/modules/homepage/FeaturesSection";
 import CTASection from "@/components/modules/homepage/CTASection";
 export default function Home() {
   return (
-    <div className="flex flex-col space-y-20">
+    <div className="flex flex-col space-y-20 md:space-y-24 lg:space-y-32">
 
       {/* Hero Section */}
       <HeroSlider />
 
       {/* How it Works Section */}
-      <section className="container mx-auto px-6 py-20">
+      <section className="container mx-auto px-6">
         <h2 className="text-3xl font-bold text-center mb-12">How Fast Box Works</h2>
         <div className="grid md:grid-cols-4 gap-8 text-center">
           {[
@@ -32,7 +31,7 @@ export default function Home() {
       </section>
 
       {/* Network & Specialties Section */}
-      <section className="container mx-auto px-6 py-20 bg-green-50 rounded-xl">
+      <section className="container mx-auto px-6 rounded-xl">
         <div className="md:flex md:items-center md:space-x-12">
           <img src={van} alt="Delivery Van" className="md:w-1/2 rounded-xl" />
           <div className="md:w-1/2 mt-8 md:mt-0">
@@ -57,7 +56,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <h1></h1>
       </section>
       {/* features section  */}
       <FeaturesSection />

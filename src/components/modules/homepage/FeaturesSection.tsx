@@ -25,7 +25,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="container mx-auto px-6 py-20">
+    <section className="container mx-auto px-6">
       <div className="text-center mb-14">
         <h2 className="text-4xl font-bold mb-4">
           Our Key Features

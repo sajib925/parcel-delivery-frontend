@@ -1,14 +1,18 @@
-import { adminSidebarItems, receiverSidebarItems } from "@/constants/getSidebarItem"
-import { ISidebarItem } from "@/types"
+import { role } from "@/constants/role";
+import { adminSidebarItems } from "@/routes/adminSidebarItems";
+import { receiverSidebarItems } from "@/routes/receiverSidebarItems";
+import { senderSidebarItems } from "@/routes/senderSidebarItems";
+import { TRole } from "@/types";
 
-export const getSidebarItems = (role?: string): ISidebarItem[] => {
-  if (role === "ADMIN" || role === "SENDER") {
-    return adminSidebarItems
+export const getSidebarItems = (userRole: TRole) => {
+  switch (userRole) {
+    case role.admin:
+      return [...adminSidebarItems];
+    case role.sender:
+      return [...senderSidebarItems];
+    case role.receiver:
+      return [...receiverSidebarItems];
+    default:
+      return [];
   }
-
-  if (role === "RECEIVER") {
-    return receiverSidebarItems
-  }
-
-  return []
-}
+};

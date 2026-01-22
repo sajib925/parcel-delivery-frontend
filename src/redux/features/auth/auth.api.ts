@@ -43,6 +43,13 @@ export const authApi = baseApi.injectEndpoints({
         data,
       }),
     }),
+    userInfo: builder.query({
+      query: () => ({
+        url: "/user/me",
+        method: "GET",
+      }),
+      providesTags: ["USER"],
+    }),
 
     getNewAccessToken: builder.mutation({
       query: (refreshToken) => ({
@@ -61,4 +68,5 @@ export const {
   useGetProfileQuery,
   useChangePasswordMutation,
   useGetNewAccessTokenMutation,
+  useUserInfoQuery
 } = authApi

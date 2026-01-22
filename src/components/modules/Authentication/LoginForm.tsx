@@ -22,30 +22,61 @@ export function LoginForm({ className, ...props }: React.HTMLAttributes<HTMLDivE
   })
   const [login, { isLoading }] = useLoginMutation()
 
-  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    console.log("[v0] Login attempt:", { email: data.email, passwordLength: data.password?.length })
+  // const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+  //   console.log("[v0] Login attempt:", { email: data.email, passwordLength: data.password?.length })
 
-    try {
-      const res = await login(data).unwrap()
+  //   try {
+  //     const res = await login(data).unwrap()
 
-      console.log("[v0] Login success:", res)
+  //     console.log("[v0] Login success:", res)
 
-      if (res.success) {
+  //     if (res.success) {
 
-        toast.success("Logged in successfully")
-        navigate("/dashboard")
+  //       toast.success("Logged in successfully")
+  //       navigate("/")
+  //     }
+  //   } catch (err: any) {
+  //     console.error("[v0] Login failed:", {
+  //       message: err.data?.message,
+  //       email: data.email,
+  //       backendError: err.data,
+  //     })
+
+  //     const errorMessage = err.data?.message || "Login failed"
+  //     toast.error(errorMessage)
+  //   }
+  // }
+const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+  try {
+    const res = await login(data).unwrap()
+
+    if (res.success) {
+      toast.success("Logged in successfully")
+
+      // Extract role from response
+      const userRole = res.data.user.role
+
+      // Redirect based on role
+      switch (userRole) {
+        case "admin":
+          navigate("/admin/adminDashboard")
+          break
+        case "sender":
+          navigate("/sender/senderDashboard")
+          break
+        case "receiver":
+          navigate("/receiver/receiverDashboard")
+          break
+        default:
+          navigate("/") // fallback to home
       }
-    } catch (err: any) {
-      console.error("[v0] Login failed:", {
-        message: err.data?.message,
-        email: data.email,
-        backendError: err.data,
-      })
-
-      const errorMessage = err.data?.message || "Login failed"
-      toast.error(errorMessage)
     }
+  } catch (err: any) {
+    toast.error(err.data?.message || "Login failed")
   }
+}
+
+
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

@@ -7,3 +7,6 @@ export interface ISidebarItem {
     component?: React.ComponentType
   }>
 }
+
+
+export type TRole = "ADMIN" | "RECEIVER" | "SENDER";

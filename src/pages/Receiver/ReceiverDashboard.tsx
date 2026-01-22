@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card"
 
-export default function DashboardHome() {
+export default function ReceiverDashboard() {
   const user = JSON.parse(localStorage.getItem("user") || "{}")
 
   return (

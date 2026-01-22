@@ -1,4 +1,4 @@
-import type * as React from "react"
+import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,40 +10,37 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Link } from "react-router"
-import { useGetProfileQuery } from "@/redux/features/auth/auth.api"
-import { getSidebarItems } from "@/utils/getSidebar"
+} from "@/components/ui/sidebar";
+import Logo from "@/assets/icons/Logo";
+import { Link } from "react-router";
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
+import { getSidebarItems } from "@/utils/getSidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const user = JSON.parse(localStorage.getItem("user") || "{}")
-  const { data: profile } = useGetProfileQuery(undefined, {
-    skip: !localStorage.getItem("accessToken"),
-  })
-
-  const userRole = user?.role || profile?.data?.user?.role
+  const { data: userData } = useUserInfoQuery(undefined);
 
   const data = {
-    navMain: getSidebarItems(userRole),
-  }
+    navMain: getSidebarItems(userData?.data?.role),
+  };
 
   return (
     <Sidebar {...props}>
       <SidebarHeader className="items-center">
-        <Link to="/" className="text-2xl font-bold text-blue-600">
-          ParcelHub
+        <Link to="/">
+          <Logo />
         </Link>
       </SidebarHeader>
       <SidebarContent>
+        {/* We create a SidebarGroup for each parent. */}
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((menuItem) => (
-                  <SidebarMenuItem key={menuItem.title}>
+                {item.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link to={menuItem.url}>{menuItem.title}</Link>
+                      <Link to={item.url}>{item.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -54,5 +51,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

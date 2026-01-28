@@ -41,25 +41,25 @@ export const router = createBrowserRouter([
   },
   {
     Component: withAuth(DashboardLayout, role.admin as TRole),
-    path: "/admin",
+    path: "/dashboard/admin",
     children: [
-      { index: true, element: <Navigate to="/admin/adminDashboard" /> },
+      { index: true, element: <Navigate to="/dashboard/admin/adminDashboard" /> },
       ...generateRoutes(adminSidebarItems),
     ],
   },
   {
     Component: withAuth(DashboardLayout, role.sender as TRole),
-    path: "/sender",
+    path: "/dashboard/sender",
     children: [
-      { index: true, element: <Navigate to="/sender/senderDashboard" /> },
+      { index: true, element: <Navigate to="/dashboard/sender/senderDashboard" /> },
       ...generateRoutes(senderSidebarItems),
     ],
   },
   {
     Component: withAuth(DashboardLayout, role.receiver as TRole),
-    path: "/receiver",
+    path: "/dashboard/receiver",
     children: [
-      { index: true, element: <Navigate to="/receiver/receiverDashboard" /> },
+      { index: true, element: <Navigate to="/dashboard/receiver/receiverDashboard" /> },
       ...generateRoutes(receiverSidebarItems),
     ],
   },

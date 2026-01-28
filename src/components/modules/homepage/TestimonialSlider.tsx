@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Star } from "lucide-react" // using lucide for star icons
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api"
+import { Link } from "react-router"
 
 const testimonials = [
   {
@@ -41,6 +43,11 @@ const testimonials = [
 ]
 
 export default function TestimonialSlider() {
+    const { data } = useUserInfoQuery(undefined)
+  
+    const user = data?.data
+    const userId = user?._id
+  
   return (
     <section className="container mx-auto px-6">
       <div className="flex flex-col md:flex-row justify-between md:items-start mb-20 space-y-4 md:space-y-0">
@@ -48,10 +55,10 @@ export default function TestimonialSlider() {
           <h2 className="text-4xl font-bold">What Our Clients Say</h2>
           <p className="text-gray-600">Trusted by thousands of happy customers nationwide.</p>
         </div>
-
+        {userId ? (
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-green-600 hover:bg-green-700 cursor-pointer">Give a Review</Button>
+            <Button className="cursor-pointer">Give a Review</Button>
           </DialogTrigger>
 
           <DialogContent className="sm:max-w-lg">
@@ -67,6 +74,12 @@ export default function TestimonialSlider() {
             </form>
           </DialogContent>
         </Dialog>
+          ) : (
+            <Link to="/login">
+              <Button className="cursor-pointer">Give a Review</Button>
+            </Link>
+          )}
+
       </div>
 
       <Swiper

@@ -1,20 +1,34 @@
-import { useUserInfoQuery } from "@/redux/features/auth/auth.api";
-import { TRole } from "@/types";
-import { ComponentType } from "react";
-import { Navigate } from "react-router";
+import DashboardSkeleton from "@/components/DashboardSkeleton"
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api"
+import { TRole } from "@/types"
+import { ComponentType, useEffect } from "react"
+import { Navigate } from "react-router"
 
-export const withAuth = (Component: ComponentType, requiredRole?: TRole) => {
+export const withAuth = (
+  Component: ComponentType,
+  requiredRole?: TRole
+) => {
   return function AuthWrapper() {
-    const { data, isLoading } = useUserInfoQuery(undefined);
+    const { data, isLoading, isError } = useUserInfoQuery(undefined)
 
-    if (!isLoading && !data?.data?.email) {
-      return <Navigate to="/login" />;
+    useEffect(() => {
+      console.log("data:", data, "requiredRole:", requiredRole)
+    }, [data, requiredRole])
+
+    if (isLoading) {
+      return <DashboardSkeleton />
     }
 
-    if (requiredRole && !isLoading && requiredRole !== data?.data?.role) {
-      return <Navigate to="/unauthorized" />;
+    if (isError || !data?.data) {
+      return <Navigate to="/login" replace />
     }
 
-    return <Component />;
-  };
-};
+    const userRole = data.data.role?.toUpperCase() as TRole
+
+    if (requiredRole && userRole !== requiredRole) {
+      return <Navigate to="/unauthorized" replace />
+    }
+
+    return <Component />
+  }
+}

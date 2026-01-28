@@ -1,57 +1,63 @@
-import { Truck, Clock, ShieldCheck, MapPin } from "lucide-react"
-
-const features = [
-  {
-    icon: <Truck className="w-10 h-10 text-green-600" />,
-    title: "Fast Delivery",
-    desc: "Quick and reliable delivery across all major locations.",
-  },
-  {
-    icon: <Clock className="w-10 h-10 text-green-600" />,
-    title: "On-Time Service",
-    desc: "We value your time and ensure timely deliveries.",
-  },
-  {
-    icon: <ShieldCheck className="w-10 h-10 text-green-600" />,
-    title: "Secure Handling",
-    desc: "Your parcels are handled with maximum safety.",
-  },
-  {
-    icon: <MapPin className="w-10 h-10 text-green-600" />,
-    title: "Wide Coverage",
-    desc: "Nationwide delivery network with live tracking.",
-  },
-]
+import { Package, Globe, Users, BarChart3, Zap, Lock } from "lucide-react"
 
 export default function FeaturesSection() {
-  return (
-    <section className="container mx-auto px-6">
-      <div className="text-center mb-14">
-        <h2 className="text-4xl font-bold mb-4">
-          Our Key Features
-        </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Everything you need for a fast, safe, and reliable parcel delivery experience.
-        </p>
-      </div>
+  const features = [
+    {
+      icon: Package,
+      title: 'Easy Parcel Creation',
+      description: 'Create and send parcels in minutes with our intuitive form. Automatic fee calculation based on weight and type.',
+    },
+    {
+      icon: Globe,
+      title: 'Real-Time Tracking',
+      description: 'Track your parcels in real-time with live status updates. Know exactly where your package is at any moment.',
+    },
+    {
+      icon: Users,
+      title: 'Role-Based Access',
+      description: 'Separate dashboards for senders, receivers, and admins. Each role has customized views and actions.',
+    },
+    {
+      icon: BarChart3,
+      title: 'Admin Dashboard',
+      description: 'Manage all parcels, monitor users, update status, and block suspicious parcels with advanced controls.',
+    },
+    {
+      icon: Zap,
+      title: 'Fast Operations',
+      description: 'Lightning-fast status updates and delivery confirmations. Optimized for high-volume parcel operations.',
+    },
+    {
+      icon: Lock,
+      title: 'Secure & Reliable',
+      description: 'JWT authentication, role-based security, and encrypted data. Your parcel data is always protected.',
+    },
+  ]
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8">
-        {features.map((feature, idx) => (
-          <div
-            key={idx}
-            className="bg-white rounded-xl p-8 text-center shadow hover:shadow-lg transition"
-          >
-            <div className="mb-4 flex justify-center">
-              {feature.icon}
-            </div>
-            <h3 className="text-xl font-semibold mb-2">
-              {feature.title}
-            </h3>
-            <p className="text-gray-600 text-sm">
-              {feature.desc}
-            </p>
-          </div>
-        ))}
+  return (
+    <section className="">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <h3 className="text-3xl font-bold text-foreground">Powerful Features</h3>
+          <p className="text-muted-foreground mt-2">Everything you need to manage parcels efficiently</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {features.map((feature, idx) => {
+            const Icon = feature.icon
+            return (
+              <div key={idx} className="bg-card p-6 rounded-lg border border-border hover:shadow-lg transition-shadow">
+                <div className="mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-primary" />
+                  </div>
+                </div>
+                <h4 className="font-bold text-foreground mb-2">{feature.title}</h4>
+                <p className="text-sm text-muted-foreground">{feature.description}</p>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </section>
   )

@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import config from "@/config/config"
+// import config from "@/config/config"
 import { cn } from "@/lib/utils"
 import { useLoginMutation } from "@/redux/features/auth/auth.api"
 import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form"
@@ -22,61 +22,33 @@ export function LoginForm({ className, ...props }: React.HTMLAttributes<HTMLDivE
   })
   const [login, { isLoading }] = useLoginMutation()
 
-  // const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-  //   console.log("[v0] Login attempt:", { email: data.email, passwordLength: data.password?.length })
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    try {
+      const res = await login(data).unwrap()
 
-  //   try {
-  //     const res = await login(data).unwrap()
+      if (res.success) {
+        toast.success("Logged in successfully")
 
-  //     console.log("[v0] Login success:", res)
+        const userRole = res.data.user.role
 
-  //     if (res.success) {
-
-  //       toast.success("Logged in successfully")
-  //       navigate("/")
-  //     }
-  //   } catch (err: any) {
-  //     console.error("[v0] Login failed:", {
-  //       message: err.data?.message,
-  //       email: data.email,
-  //       backendError: err.data,
-  //     })
-
-  //     const errorMessage = err.data?.message || "Login failed"
-  //     toast.error(errorMessage)
-  //   }
-  // }
-const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-  try {
-    const res = await login(data).unwrap()
-
-    if (res.success) {
-      toast.success("Logged in successfully")
-
-      // Extract role from response
-      const userRole = res.data.user.role
-
-      // Redirect based on role
-      switch (userRole) {
-        case "admin":
-          navigate("/admin/adminDashboard")
-          break
-        case "sender":
-          navigate("/sender/senderDashboard")
-          break
-        case "receiver":
-          navigate("/receiver/receiverDashboard")
-          break
-        default:
-          navigate("/") // fallback to home
+        switch (userRole) {
+          case "admin":
+            navigate("/dashboard/admin/adminDashboard")
+            break
+          case "sender":
+            navigate("/dashboard/sender/senderDashboard")
+            break
+          case "receiver":
+            navigate("/dashboard/receiver/receiverDashboard")
+            break
+          default:
+            navigate("/") 
+        }
       }
+    } catch (err: any) {
+      toast.error(err.data?.message || "Login failed")
     }
-  } catch (err: any) {
-    toast.error(err.data?.message || "Login failed")
   }
-}
-
-
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -115,13 +87,13 @@ const onSubmit: SubmitHandler<FieldValues> = async (data) => {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </Form>
 
-        <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+        {/* <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">Or continue with</span>
         </div>
 
@@ -132,11 +104,11 @@ const onSubmit: SubmitHandler<FieldValues> = async (data) => {
           className="w-full cursor-pointer"
         >
           Login with Google
-        </Button>
+        </Button> */}
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link to="/register" replace className="underline underline-offset-4">
+        <Link to="/register" replace className="underline underline-offset-4 cursor-pointer">
           Register
         </Link>
       </div>

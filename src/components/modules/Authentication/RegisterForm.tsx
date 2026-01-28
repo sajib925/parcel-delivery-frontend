@@ -117,7 +117,7 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                   <FormControl>
                     <select
                       {...field}
-                      className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                      className="w-full px-3 py-2 border border-input rounded-xl bg-background text-foreground"
                     >
                       <option value="sender">Sender</option>
                       <option value="receiver">Receiver</option>
@@ -156,24 +156,24 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Register"}
             </Button>
           </form>
         </Form>
 
-        <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+        {/* <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">Or continue with</span>
         </div>
 
         <Button type="button" variant="outline" className="w-full cursor-pointer bg-transparent">
           Register with Google
-        </Button>
+        </Button> */}
       </div>
 
       <div className="text-center text-sm">
         Already have an account?{" "}
-        <Link to="/login" className="underline underline-offset-4">
+        <Link to="/login" className="underline underline-offset-4 cursor-pointer">
           Login
         </Link>
       </div>

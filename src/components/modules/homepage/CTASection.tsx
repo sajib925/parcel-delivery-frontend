@@ -1,36 +1,47 @@
-import { Link } from "react-router"
+import { useNavigate } from "react-router"
 import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
+import { useUserInfoQuery } from "@/redux/features/auth/auth.api"
 
 export default function CTASection() {
+  const navigate = useNavigate()
+  
+    const { data } = useUserInfoQuery(undefined)
+  
+    const user = data?.data
+    const userRole = user?.role
+  
+  
+    // dynamic dashboard path
+    const getDashboardPath = () => {
+      switch (userRole) {
+        case "admin":
+          return "/dashboard/admin/adminDashboard"
+        case "sender":
+          return "/dashboard/sender/senderDashboard"
+        case "receiver":
+          return "/dashboard/receiver/receiverDashboard"
+        default:
+          return "/login"
+      }
+    }
+  
+    const handleButtonClick = () => {
+      navigate(getDashboardPath())
+    }
   return (
-    <section className="relative overflow-hidden py-24">
-      <div className="absolute inset-0 bg-gradient-to-r from-green-500 via-blue-500 to-emerald-400" />
-
-      <div className="relative container mx-auto px-6 text-center text-white">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">
-          Ready to Deliver Smarter?
-        </h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto opacity-90">
-          Join thousands of businesses and individuals who trust Fast Box
-          for secure, fast, and reliable courier service.
-        </p>
-
-        <div className="flex gap-4 justify-center">
-          <Link to="/register">
-            <Button size="lg" variant="secondary">
-              Get Started
-            </Button>
-          </Link>
-          <Link to="/track">
-            <Button
-              size="lg"
-              className="bg-white text-gray-900 hover:bg-gray-100"
-            >
-              Track Parcel
-            </Button>
-          </Link>
+      <section className="bg-primary text-primary-foreground">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-16 lg:py-24 text-center space-y-6">
+          <h3 className="text-3xl lg:text-4xl font-bold text-balance">
+            Ready to revolutionize parcel management?
+          </h3>
+          <p className="text-lg text-primary-foreground/80 text-balance">
+            Join ParcelHub today and experience seamless logistics management
+          </p>
+          <Button size="lg" variant="secondary" className="gap-2 cursor-pointer" onClick={handleButtonClick}>
+            Launch Dashboard <ArrowRight className="w-4 h-4" />
+          </Button>
         </div>
-      </div>
-    </section>
+      </section>
   )
 }

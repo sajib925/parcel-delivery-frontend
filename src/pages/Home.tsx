@@ -4,9 +4,10 @@ import HeroSlider from "@/components/modules/homepage/HeroSection";
 import TestimonialSlider from "@/components/modules/homepage/TestimonialSlider";
 import FeaturesSection from "@/components/modules/homepage/FeaturesSection";
 import CTASection from "@/components/modules/homepage/CTASection";
+import RolesSection from "@/components/modules/homepage/RolesSection";
 export default function Home() {
   return (
-    <div className="flex flex-col space-y-20 md:space-y-24 lg:space-y-32">
+    <div className="flex flex-col space-y-20 md:space-y-24 lg:space-y-40">
 
       {/* Hero Section */}
       <HeroSlider />
@@ -30,7 +31,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Network & Specialties Section */}
+      {/* Network Section */}
       <section className="container mx-auto px-6 rounded-xl">
         <div className="md:flex md:items-center md:space-x-12">
           <img src={van} alt="Delivery Van" className="md:w-1/2 rounded-xl" />
@@ -39,10 +40,9 @@ export default function Home() {
             <p className="text-gray-600 mb-6">
               Our delivery network covers every major city and region. We ensure safe, fast, and reliable parcel handling for individuals and businesses alike.
             </p>
-            <Button size="lg" className="bg-green-600 hover:bg-green-700">Learn More</Button>
-
+          
             {/* Specialties */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 mb-16">
               {[
                 { title: "Easy to Order", desc: "Place orders online in a few clicks" },
                 { title: "Cash on Delivery", desc: "Pay only when you receive your parcel" },
@@ -54,14 +54,18 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            <Button size="lg" className="cursor-pointer">Learn More</Button>
           </div>
         </div>
       </section>
+
       {/* features section  */}
       <FeaturesSection />
 
       {/* Testimonials Section */}
       <TestimonialSlider />
+
+      <RolesSection />
 
       {/* cta section  */}
       <CTASection />

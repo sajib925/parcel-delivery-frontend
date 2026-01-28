@@ -1,41 +1,33 @@
-import AdminDashboard from "@/pages/Admin/AdminDashboard";
-import AdminParcels from "@/pages/Admin/AdminParcels";
-import AdminUsers from "@/pages/Admin/AdminUsers";
-// import Analytics from "@/pages/Admin/Analytics";
-import { ISidebarItem } from "@/types";
-// import { lazy } from "react";
-
-// const Analytics = lazy(() => import("@/pages/Admin/Analytics"));
+import AdminDashboard from "@/pages/dashboard/Admin/AdminDashboard"
+import AdminParcels from "@/pages/dashboard/Admin/AdminParcels"
+import AdminUsers from "@/pages/dashboard/Admin/AdminUsers"
+import Settings from "@/pages/dashboard/Settings"
+import { ISidebarItem } from "@/types"
 
 export const adminSidebarItems: ISidebarItem[] = [
-//   {
-//     title: "Dashboard",
-//     items: [
-//       {
-//         title: "Analytics",
-//         url: "/admin/analytics",
-//         component: Analytics,
-//       },
-//     ],
-//   },
   {
     title: "Parcel Delivery",
     items: [
       {
-        title: "admin Dashboard",
-        url: "/admin/adminDashboard",
+        title: "Admin Dashboard",
+        url: "adminDashboard", // ✅
         component: AdminDashboard,
       },
       {
         title: "Admin Parcels",
-        url: "/admin/adminParcels",
+        url: "adminParcels", // ✅
         component: AdminParcels,
       },
       {
         title: "Admin Users",
-        url: "/admin/adminUsers",
+        url: "adminUsers", // ✅
         component: AdminUsers,
+      },
+      {
+        title: "Settings",
+        url: "settings", // ✅
+        component: Settings,
       },
     ],
   },
-];
+]

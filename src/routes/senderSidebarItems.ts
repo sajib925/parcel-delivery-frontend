@@ -1,5 +1,6 @@
-import DashboardHome from "@/pages/Sender/SenderDashboard";
-import { ISidebarItem } from "@/types";
+import SenderDashboard from "@/pages/dashboard/Sender/SenderDashboard"
+import Settings from "@/pages/dashboard/Settings"
+import { ISidebarItem } from "@/types"
 
 export const senderSidebarItems: ISidebarItem[] = [
   {
@@ -7,9 +8,14 @@ export const senderSidebarItems: ISidebarItem[] = [
     items: [
       {
         title: "Send",
-        url: "/sender/senderDashboard",
-        component: DashboardHome,
+        url: "senderDashboard",
+        component: SenderDashboard,
+      },
+      {
+        title: "Settings",
+        url: "settings",
+        component: Settings,
       },
     ],
   },
-];
+]

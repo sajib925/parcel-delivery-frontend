@@ -1,7 +1,7 @@
 import ParcelLogin from "@/assets/image/sign-in.jpg";
 import { Link } from "react-router";
-import Logo from "@/assets/icons/Logo";
 import { LoginForm } from "@/components/modules/Authentication/LoginForm";
+import { Package } from "lucide-react";
 
 export default function Login() {
   return (
@@ -9,7 +9,12 @@ export default function Login() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link to="/" className="flex items-center gap-2 font-medium">
-            <Logo />
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+              <Package className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <h1 className="text-xl font-bold text-foreground">
+                ParcelHub
+            </h1>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">

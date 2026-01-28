@@ -1,5 +1,6 @@
-import DashboardHome from "@/pages/Receiver/ReceiverDashboard";
-import { ISidebarItem } from "@/types";
+import ReceiverDashboard from "@/pages/dashboard/Receiver/ReceiverDashboard"
+import Settings from "@/pages/dashboard/Settings"
+import { ISidebarItem } from "@/types"
 
 export const receiverSidebarItems: ISidebarItem[] = [
   {
@@ -7,9 +8,14 @@ export const receiverSidebarItems: ISidebarItem[] = [
     items: [
       {
         title: "Receive",
-        url: "/receiver/receiverDashboard",
-        component: DashboardHome,
+        url: "receiverDashboard", 
+        component: ReceiverDashboard,
+      },
+      {
+        title: "Settings",
+        url: "settings",
+        component: Settings,
       },
     ],
   },
-];
+]

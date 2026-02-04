@@ -83,11 +83,11 @@ export default function Navbar() {
           {/* Desktop Button */}
           <div className="hidden md:block">
             {userId ? (
-              <Button onClick={handleButtonClick}>
+              <Button onClick={handleButtonClick} className="cursor-pointer">
                 Enter Dashboard
               </Button>
             ) : (
-              <Link to="/register">
+              <Link to="/register" className="cursor-pointer">
                 <Button>Get Started</Button>
               </Link>
             )}

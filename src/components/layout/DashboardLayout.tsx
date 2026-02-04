@@ -39,7 +39,7 @@ export default function DashboardLayout() {
               />
             </div>
             <Popover>
-              <PopoverTrigger>
+              <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="cursor-pointer">
                   {isLoading ? "Loading..." : data?.data?.name ?? "Profile"}
                 </Button>

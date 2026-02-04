@@ -39,9 +39,6 @@ export function AdminDashboard() {
   }))
 
 
-  console.log("data", data?.data);
-
-
   const [parcelStatus, setParcelStatus] = useState<Record<string, string>>(() => {
     const initialStatus: Record<string, string> = {}
     parcels.forEach(p => {

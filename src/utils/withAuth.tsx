@@ -1,7 +1,7 @@
 import DashboardSkeleton from "@/components/DashboardSkeleton"
 import { useUserInfoQuery } from "@/redux/features/auth/auth.api"
 import { TRole } from "@/types"
-import { ComponentType, useEffect } from "react"
+import { ComponentType } from "react"
 import { Navigate } from "react-router"
 
 export const withAuth = (
@@ -11,9 +11,6 @@ export const withAuth = (
   return function AuthWrapper() {
     const { data, isLoading, isError } = useUserInfoQuery(undefined)
 
-    useEffect(() => {
-      console.log("data:", data, "requiredRole:", requiredRole)
-    }, [data, requiredRole])
 
     if (isLoading) {
       return <DashboardSkeleton />

@@ -107,12 +107,20 @@ export default function CreateParcelModal({ open, onOpenChange }: CreateParcelMo
                 <FormItem>
                   <FormLabel>Weight (kg)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="5" step="0.1" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="5"
+                      step="0.1"
+                      {...field}
+                      value={field.value as number} 
+                    />
+
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
 
             <FormField
               control={form.control}

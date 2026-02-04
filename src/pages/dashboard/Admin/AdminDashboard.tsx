@@ -17,7 +17,6 @@ import {
 import {
   LineChart,
   Line,
- 
   PieChart,
   Pie,
   Cell,
@@ -28,8 +27,21 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { ParcelStatus } from '@/types'
 
 const COLORS = ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6']
+
+// Parcel status colors
+const STATUS_COLORS: Record<ParcelStatus, string> = {
+  Requested: '#3b82f6',
+  Approved: '#06b6d4',
+  Dispatched: '#10b981',
+  'In Transit': '#f59e0b',
+  'Out for Delivery': '#8b5cf6',
+  Delivered: '#10b981',
+  Cancelled: '#ef4444',
+  Returned: '#f97316',
+}
 
 export default function AdminDashboard() {
   const { data: parcelsData } = useGetAllParcelsQuery({
@@ -45,26 +57,29 @@ export default function AdminDashboard() {
   const [parcelStatusData, setParcelStatusData] = useState<any[]>([])
   const [userRoleData, setUserRoleData] = useState<any[]>([])
 
-  const parcels = parcelsData?.data?.result || []
-  const users = usersData?.data?.result || []
+  const parcels = parcelsData?.data || []
+  const users = usersData?.data || []
 
+  // Prepare chart data
   useEffect(() => {
     if (parcels.length > 0) {
       const statusCounts: Record<string, number> = {}
 
       parcels.forEach((parcel: any) => {
-        const status = parcel.status?.toLowerCase() || 'unknown'
-        statusCounts[status] = (statusCounts[status] || 0) + 1
+        const logs = parcel.statusLogs
+        const lastStatus =
+          logs && logs.length > 0 ? logs[logs.length - 1].status : ParcelStatus.REQUESTED
+
+        statusCounts[lastStatus] = (statusCounts[lastStatus] || 0) + 1
       })
 
       const statusData = Object.entries(statusCounts).map(([status, count]) => ({
-        name: status.charAt(0).toUpperCase() + status.slice(1),
+        name: status,
         value: count,
-        status,
       }))
-
       setParcelStatusData(statusData)
 
+      // Example daily activity chart
       const dailyData = [
         { day: 'Mon', parcels: 12, deliveries: 9 },
         { day: 'Tue', parcels: 18, deliveries: 14 },
@@ -78,34 +93,39 @@ export default function AdminDashboard() {
     }
   }, [parcels])
 
+  // Prepare user role data
   useEffect(() => {
     if (users.length > 0) {
       const roleCounts: Record<string, number> = {}
-
       users.forEach((user: any) => {
-        const role = user.role?.toLowerCase() || 'user'
+        const role = user.role || 'user'
         roleCounts[role] = (roleCounts[role] || 0) + 1
       })
-
       const roleData = Object.entries(roleCounts).map(([role, count]) => ({
         name: role.charAt(0).toUpperCase() + role.slice(1),
         value: count,
       }))
-
       setUserRoleData(roleData)
     }
   }, [users])
 
   const activeUsers = users.filter((u: any) => !u.isBlocked)
   const blockedUsers = users.filter((u: any) => u.isBlocked)
-  const deliveredParcels = parcels.filter(
-    (p: any) => p.status?.toLowerCase() === 'delivered'
-  )
-  const pendingParcels = parcels.filter(
-    (p: any) =>
-      p.status?.toLowerCase() === 'pending' ||
-      p.status?.toLowerCase() === 'processing'
-  )
+
+  // Delivered and pending based on lastStatus
+  const deliveredParcels = parcels.filter((parcel: any) => {
+    const logs = parcel.statusLogs
+    const lastStatus =
+      logs && logs.length > 0 ? logs[logs.length - 1].status : ParcelStatus.REQUESTED
+    return lastStatus === ParcelStatus.DELIVERED
+  })
+
+  const pendingParcels = parcels.filter((parcel: any) => {
+    const logs = parcel.statusLogs
+    const lastStatus =
+      logs && logs.length > 0 ? logs[logs.length - 1].status : ParcelStatus.REQUESTED
+    return lastStatus === ParcelStatus.REQUESTED || lastStatus === ParcelStatus.APPROVED
+  })
 
   const stats = [
     {
@@ -209,7 +229,7 @@ export default function AdminDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
-                <XAxis stroke="#9ca3af" />
+                <XAxis stroke="#9ca3af" dataKey="day" />
                 <YAxis stroke="#9ca3af" />
                 <Tooltip
                   contentStyle={{
@@ -262,14 +282,20 @@ export default function AdminDashboard() {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {parcelStatusData.map((index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {parcelStatusData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          STATUS_COLORS[entry.name as ParcelStatus] ||
+                          COLORS[index % COLORS.length]
+                        }
+                      />
                     ))}
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1a1f2e',
-                      border: '1px solid #2d3748',
+                      backgroundColor: '#fff',
+                      border: '1px solid #fff',
                       borderRadius: '8px',
                     }}
                     labelStyle={{ color: '#e8ecf1' }}
@@ -368,42 +394,49 @@ export default function AdminDashboard() {
                     Status
                   </th>
                   <th className="text-left py-3 px-4 text-muted-foreground font-semibold">
-                    Created
+                    Amount
                   </th>
                   <th className="text-left py-3 px-4 text-muted-foreground font-semibold">
-                    Amount
+                    Created
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {parcels.slice(0, 5).map((parcel: any, ) => (
-                  <tr key={parcel.id} className="border-b border-border hover:bg-muted/50">
-                    <td className="py-3 px-4 text-foreground font-mono text-xs">
-                      #{parcel.trackingId || parcel._id?.substring(0, 8)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          parcel.status?.toLowerCase() === 'delivered'
-                            ? 'bg-green-500/20 text-green-400'
-                            : parcel.status?.toLowerCase() === 'pending'
-                            ? 'bg-amber-500/20 text-amber-400'
-                            : 'bg-blue-500/20 text-blue-400'
-                        }`}
-                      >
-                        {parcel.status || 'Pending'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {parcel.createdAt
-                        ? new Date(parcel.createdAt).toLocaleDateString()
-                        : 'N/A'}
-                    </td>
-                    <td className="py-3 px-4 text-foreground font-semibold">
-                      ৳{parcel.weight || '0'}
-                    </td>
-                  </tr>
-                ))}
+                {parcels.slice(0, 5).map((parcel: any) => {
+                  const logs = parcel.statusLogs
+                  const lastStatus =
+                    logs && logs.length > 0
+                      ? logs[logs.length - 1].status
+                      : ParcelStatus.REQUESTED
+
+                  return (
+                    <tr key={parcel._id || parcel.id} className="border-b border-border hover:bg-muted/50">
+                      <td className="py-3 px-4 text-foreground font-mono text-xs">
+                        #{parcel.trackingId || parcel._id?.substring(0, 8)}
+                      </td>
+                      <td className="py-3">
+                        <span
+                          className="px-3 py-1 rounded-full text-xs font-medium"
+                          style={{
+                            backgroundColor:
+                              STATUS_COLORS[lastStatus as ParcelStatus] + '33',
+                            color: STATUS_COLORS[lastStatus as ParcelStatus],
+                          }}
+                        >
+                          {lastStatus}
+                        </span>
+                      </td>
+                       <td className="py-3 px-4 text-foreground font-semibold">
+                        ৳{parcel.fee || '0'}
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground">
+                        {parcel.createdAt
+                          ? new Date(parcel.createdAt).toLocaleDateString()
+                          : 'N/A'}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

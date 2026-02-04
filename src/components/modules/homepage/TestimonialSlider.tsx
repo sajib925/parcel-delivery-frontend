@@ -90,7 +90,7 @@ export default function TestimonialSlider() {
               : "text-center w-full"
           }`}
         >
-          <h2 className="text-4xl font-bold">What Our Clients Say</h2>
+          <h2 className="text-[30px] font-bold">What Our Clients Say</h2>
           <p className="text-gray-600">Trusted by thousands of happy customers nationwide.</p>
         </div>
 

@@ -3,8 +3,22 @@
 import type React from "react"
 
 import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -16,16 +30,11 @@ import { Link, useNavigate } from "react-router"
 
 const registerSchema = z
   .object({
-    name: z
-      .string()
-      .min(3, {
-        message: "Name is too short",
-      })
-      .max(50),
+    name: z.string().min(3, { message: "Name is too short" }).max(50),
     email: z.email(),
     role: z.enum(["sender", "receiver", "admin"], {
-      message: "Please select a valid role" },
-    ),
+      message: "Please select a valid role",
+    }),
     password: z.string().min(8, { message: "Password is too short" }),
     confirmPassword: z.string().min(8, { message: "Confirm Password is too short" }),
   })
@@ -34,7 +43,10 @@ const registerSchema = z
     path: ["confirmPassword"],
   })
 
-export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function RegisterForm({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   const [register, { isLoading }] = useRegisterMutation()
   const navigate = useNavigate()
 
@@ -59,13 +71,11 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
 
     try {
       const res = await register(userInfo).unwrap()
-
       if (res.success && res.data) {
         toast.success("Account created successfully")
         navigate("/login")
       }
     } catch (error: any) {
-      console.error("[v0] Register error:", error)
       toast.error(error.data?.message || "Registration failed")
     }
   }
@@ -74,12 +84,15 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Register your account</h1>
-        <p className="text-sm text-muted-foreground">Enter your details to create an account</p>
+        <p className="text-sm text-muted-foreground">
+          Enter your details to create an account
+        </p>
       </div>
 
       <div className="grid gap-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Name */}
             <FormField
               control={form.control}
               name="name"
@@ -89,11 +102,12 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                   <FormControl>
                     <Input placeholder="John Doe" {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">This is your public display name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Email */}
             <FormField
               control={form.control}
               name="email"
@@ -103,31 +117,39 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                   <FormControl>
                     <Input placeholder="john.doe@company.com" type="email" {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">This is your public display name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Role (shadcn Select) */}
             <FormField
               control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Register as</FormLabel>
-                  <FormControl>
-                    <select
-                      {...field}
-                      className="w-full px-3 py-2 border border-input rounded-xl bg-background text-foreground"
-                    >
-                      <option value="sender">Sender</option>
-                      <option value="receiver">Receiver</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="sender">Sender</SelectItem>
+                      <SelectItem value="receiver">Receiver</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Password */}
             <FormField
               control={form.control}
               name="password"
@@ -137,11 +159,12 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                   <FormControl>
                     <Password {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">This is your public display name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Confirm Password */}
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -151,29 +174,21 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
                   <FormControl>
                     <Password {...field} />
                   </FormControl>
-                  <FormDescription className="sr-only">This is your public display name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Register"}
             </Button>
           </form>
         </Form>
-
-        {/* <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-          <span className="relative z-10 bg-background px-2 text-muted-foreground">Or continue with</span>
-        </div>
-
-        <Button type="button" variant="outline" className="w-full cursor-pointer bg-transparent">
-          Register with Google
-        </Button> */}
       </div>
 
       <div className="text-center text-sm">
         Already have an account?{" "}
-        <Link to="/login" className="underline underline-offset-4 cursor-pointer">
+        <Link to="/login" className="underline underline-offset-4">
           Login
         </Link>
       </div>

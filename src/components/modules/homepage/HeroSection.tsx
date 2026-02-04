@@ -6,9 +6,9 @@ export default function HeroSection() {
     <section className="relative w-full min-h-screen flex items-center justify-center 
       bg-[url('/images/hero-1.jpg')] bg-cover bg-right md:bg-center">
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black opacity-40"></div>
+      <div className="absolute inset-0 bg-black opacity-80 md:opacity-40"></div>
 
-      <div className="relative container mx-auto px-6 lg:px-20 flex flex-col lg:flex-row items-center justify-between gap-10">
+      <div className="relative container mx-auto pt-20 md:pt-0 px-6 lg:px-20 flex flex-col lg:flex-row items-center justify-between gap-10">
         {/* Left Content */}
         <div className="max-w-200 w-full lg:-mt-20">
             <h1 className="text-white text-2xl md:text-4xl font-extrabold tracking-tight lg:text-7xl">
@@ -19,8 +19,8 @@ export default function HeroSection() {
             </p>
             <div className="flex items-center flex-col md:flex-row justify-start gap-4 mt-10">
                                     
-                <Link to={"/login"}
-                    className="py-3 w-full md:w-auto md:px-8 font-semibold rounded-sm bg-[#091c47] text-white hover:bg-[#0057b8] transition-all ease-in-out cursor-pointer text-center">
+                <Link to={"/track"}
+                    className="py-3 w-full md:w-auto md:px-8 font-semibold rounded-sm bg-[#0057b8] text-white hover:bg-[#091c47] transition-all ease-in-out cursor-pointer text-center">
                     Track Delivery
                 </Link>
                                   

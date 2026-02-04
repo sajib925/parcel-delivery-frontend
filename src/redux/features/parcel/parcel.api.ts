@@ -2,7 +2,17 @@ import { baseApi } from "@/redux/baseApi"
 
 export const parcelApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Sender endpoints
+
+    // ✅ Sender
+    getSentParcels: builder.query({
+      query: (params) => ({
+        url: "/parcels/my-sent",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["PARCEL"],
+    }),
+
     createParcel: builder.mutation({
       query: (data) => ({
         url: "/parcels/create",
@@ -10,15 +20,6 @@ export const parcelApi = baseApi.injectEndpoints({
         data,
       }),
       invalidatesTags: ["PARCEL"],
-    }),
-
-    getSentParcels: builder.query({
-      query: (params) => ({
-        url: "/parcels/sent",
-        method: "GET",
-        params,
-      }),
-      providesTags: ["PARCEL"],
     }),
 
     cancelParcel: builder.mutation({
@@ -29,10 +30,10 @@ export const parcelApi = baseApi.injectEndpoints({
       invalidatesTags: ["PARCEL"],
     }),
 
-    // Receiver endpoints
+    // ✅ Receiver
     getReceivedParcels: builder.query({
       query: (params) => ({
-        url: "/parcels/received",
+        url: "/parcels/my-received",
         method: "GET",
         params,
       }),
@@ -47,7 +48,8 @@ export const parcelApi = baseApi.injectEndpoints({
       invalidatesTags: ["PARCEL"],
     }),
 
-    // Public endpoint
+
+    // ✅ Public
     getParcelByTrackingId: builder.query({
       query: (trackingId) => ({
         url: `/parcels/track/${trackingId}`,
@@ -55,7 +57,7 @@ export const parcelApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // Admin endpoints
+    // ✅ Admin
     getAllParcels: builder.query({
       query: (params) => ({
         url: "/parcels",
@@ -76,13 +78,14 @@ export const parcelApi = baseApi.injectEndpoints({
 
     blockParcel: builder.mutation({
       query: (parcelId) => ({
-        url: `/parcels/${parcelId}/block`,
+        url: `/parcels/${parcelId}/toggle-block`,
         method: "PATCH",
       }),
       invalidatesTags: ["PARCEL"],
     }),
   }),
 })
+
 
 export const {
   useCreateParcelMutation,

@@ -1,26 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, Lock, Unlock, Check, Clock } from 'lucide-react'
+import { Eye, Lock, Unlock, Check, Clock, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { AdminParcel } from '@/types'
 
 interface AdminParcelCardProps {
-  parcel: {
-    id: string
-    trackingId: string
-    senderName: string
-    receiverName: string
-    status: string
-    type: string
-    weight: number
-    fee: number
-    isBlocked: boolean
-    isCancelled: boolean
-    createdAt: string
-  }
+  parcel: AdminParcel
   isSelected: boolean
   onToggleSelect: () => void
+
+  // ✅ Admin actions
+  onUpdateStatus?: (parcelId: string, status: string) => Promise<void>
+  onBlock?: (parcelId: string) => Promise<void>
+  onCancel?: (parcelId: string) => Promise<void>
+  onConfirmDelivery?: (parcelId: string) => Promise<void>
 }
 
 const statusColors: Record<string, string> = {
@@ -37,15 +32,44 @@ export function AdminParcelCard({
   parcel,
   isSelected,
   onToggleSelect,
+  onUpdateStatus,
+  onBlock,
+  onCancel,
+  onConfirmDelivery,
 }: AdminParcelCardProps) {
   const [updating, setUpdating] = useState(false)
   const [newStatus, setNewStatus] = useState(parcel.status)
+  const [blocking, setBlocking] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
-  const handleStatusUpdate = () => {
+  // 🔹 Handlers
+  const handleStatusUpdate = async () => {
+    if (!onUpdateStatus) return
     setUpdating(true)
-    setTimeout(() => {
-      setUpdating(false)
-    }, 500)
+    await onUpdateStatus(parcel.id, newStatus)
+    setUpdating(false)
+  }
+
+  const handleBlockToggle = async () => {
+    if (!onBlock) return
+    setBlocking(true)
+    await onBlock(parcel.id)
+    setBlocking(false)
+  }
+
+  const handleCancel = async () => {
+    if (!onCancel) return
+    setCancelling(true)
+    await onCancel(parcel.id)
+    setCancelling(false)
+  }
+
+  const handleConfirmDelivery = async () => {
+    if (!onConfirmDelivery) return
+    setConfirming(true)
+    await onConfirmDelivery(parcel.id)
+    setConfirming(false)
   }
 
   return (
@@ -67,9 +91,6 @@ export function AdminParcelCard({
 
         {/* Tracking ID */}
         <div className="lg:col-span-2">
-          <p className="text-xs text-muted-foreground lg:hidden font-semibold mb-1">
-            Tracking ID
-          </p>
           <p className="text-sm font-mono font-bold text-primary">
             {parcel.trackingId}
           </p>
@@ -77,48 +98,38 @@ export function AdminParcelCard({
 
         {/* Sender */}
         <div className="lg:col-span-2">
-          <p className="text-xs text-muted-foreground lg:hidden font-semibold mb-1">
-            Sender
-          </p>
-          <p className="text-sm text-foreground font-medium">{parcel.senderName}</p>
+          <p className="text-sm font-medium">{parcel.senderName}</p>
           <p className="text-xs text-muted-foreground">{parcel.type}</p>
         </div>
 
         {/* Receiver */}
         <div className="lg:col-span-2">
-          <p className="text-xs text-muted-foreground lg:hidden font-semibold mb-1">
-            Receiver
-          </p>
-          <p className="text-sm text-foreground font-medium">{parcel.receiverName}</p>
+          <p className="text-sm font-medium">{parcel.receiverName}</p>
           <p className="text-xs text-muted-foreground">{parcel.weight} kg</p>
         </div>
 
-        {/* Status Selector */}
+        {/* Status */}
         <div className="lg:col-span-1">
-          <p className="text-xs text-muted-foreground lg:hidden font-semibold mb-1">
-            Status
-          </p>
           <select
             value={newStatus}
-            onChange={(e) => setNewStatus(e.target.value)}
-            className={`w-full px-2 py-1 rounded text-xs font-semibold border border-input ${statusColors[newStatus]} bg-background`}
+            onChange={e => setNewStatus(e.target.value)}
+            className={`w-full px-2 py-1 rounded text-xs font-semibold border ${statusColors[newStatus]}`}
           >
-            <option value="Requested">Requested</option>
-            <option value="Approved">Approved</option>
-            <option value="In Transit">In Transit</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Cancelled">Cancelled</option>
-            <option value="Returned">Returned</option>
+            {Object.keys(statusColors).map(status => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Actions */}
-        <div className="lg:col-span-2 flex gap-2">
+        <div className="lg:col-span-2 flex gap-2 flex-wrap">
+          {/* Update Status */}
           {newStatus !== parcel.status && (
             <Button
               size="sm"
-              className="text-xs h-7 px-2"
+              className="h-7 px-2 text-xs"
               onClick={handleStatusUpdate}
               disabled={updating}
             >
@@ -131,40 +142,62 @@ export function AdminParcelCard({
             </Button>
           )}
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-7 px-2 bg-transparent"
-            title="View details"
-          >
+          {/* View */}
+          <Button size="sm" variant="outline" className="h-7 px-2">
             <Eye className="w-3 h-3" />
           </Button>
 
+          {/* Block / Unblock */}
           <Button
             size="sm"
-            variant="outline"
-            className="h-7 px-2 bg-transparent"
-            title={parcel.isBlocked ? 'Unblock parcel' : 'Block parcel'}
+            variant={parcel.isBlocked ? 'default' : 'destructive'}
+            className="h-7 px-2"
+            onClick={handleBlockToggle}
+            disabled={blocking}
           >
-            {parcel.isBlocked ? (
+            {blocking ? (
+              <Clock className="w-3 h-3 mr-1 animate-spin" />
+            ) : parcel.isBlocked ? (
               <Unlock className="w-3 h-3 text-green-600" />
             ) : (
               <Lock className="w-3 h-3 text-amber-600" />
             )}
           </Button>
+
+          {/* Cancel */}
+          <Button
+            size="sm"
+            variant="destructive"
+            className="h-7 px-2"
+            onClick={handleCancel}
+            disabled={cancelling}
+          >
+            {cancelling ? (
+              <Clock className="w-3 h-3 mr-1 animate-spin" />
+            ) : (
+              <XCircle className="w-3 h-3" />
+            )}
+          </Button>
+
+          {/* Confirm Delivery */}
+          <Button
+            size="sm"
+            className="h-7 px-2"
+            onClick={handleConfirmDelivery}
+            disabled={confirming}
+          >
+            {confirming ? (
+              <Clock className="w-3 h-3 mr-1 animate-spin" />
+            ) : (
+              <Check className="w-3 h-3 mr-1" />
+            )}
+            Confirm
+          </Button>
         </div>
 
-        {/* Fee (mobile only) */}
-        <div className="lg:col-span-1 lg:hidden">
-          <p className="text-xs text-muted-foreground font-semibold mb-1">
-            Fee
-          </p>
-          <p className="text-sm font-bold text-foreground">৳{parcel.fee}</p>
-        </div>
-
-        {/* Fee (desktop) */}
-        <div className="hidden lg:flex lg:col-span-1 items-center">
-          <p className="text-sm font-bold text-foreground">৳{parcel.fee}</p>
+        {/* Fee */}
+        <div className="lg:col-span-1 flex items-center">
+          <p className="text-sm font-bold">৳{parcel.fee}</p>
         </div>
       </div>
     </Card>

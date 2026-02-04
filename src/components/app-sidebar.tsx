@@ -4,20 +4,18 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import Logo from "@/assets/icons/Logo"
 import { Link } from "react-router"
 import { useLogoutMutation, useUserInfoQuery } from "@/redux/features/auth/auth.api"
 import { getSidebarItems } from "@/utils/getSidebar"
 import "react-loading-skeleton/dist/skeleton.css"
 import { TRole } from "@/types"
-import { LogOut } from "lucide-react"
+import { LogOut, Package } from "lucide-react"
 import { baseApi } from "@/redux/baseApi"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -43,26 +41,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="items-center border-b h-16">
+      <SidebarHeader className="border-b h-16 flex items-start justify-center">
         <Link to="/">
-          <Logo />
+          <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                <Package className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-bold text-foreground">
+                ParcelHub
+              </h1>
+            </div>
         </Link>
       </SidebarHeader>
 
       <SidebarContent className="flex flex-col justify-between h-full">
         <div>
           {navMain.map((group) => (
+            
             <SidebarGroup key={group.title}>
-              <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
-                  {group.items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link to={item.url}>{item.title}</Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                <SidebarMenu className="space-y-1">
+                  {group.items.map((item) => {
+                    const Icon = item.icon
+
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <Link to={item.url} className="flex items-center gap-2">
+                            <Icon className="w-4 h-4" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                  })}
+
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

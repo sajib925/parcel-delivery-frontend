@@ -3,7 +3,7 @@ import { ReceiverDashboardComponents } from "@/components/dashboard/receiverDash
 export default function ReceiverDashboard() {
 
   return (
-    <div className="">
+    <div>
         <ReceiverDashboardComponents />
     </div>
   )

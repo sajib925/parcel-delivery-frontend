@@ -1,11 +1,10 @@
 'use client'
 
-import React from "react"
-
-import { useState } from 'react'
+import React, { useState } from "react"
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useCreateParcelMutation } from "@/redux/features/parcel/parcel.api"
 
 interface CreateParcelModalProps {
   open: boolean
@@ -23,21 +22,33 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
     description: '',
   })
 
-  const [loading, setLoading] = useState(false)
+  const [createParcel, { isLoading }] = useCreateParcelMutation()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false)
+
+    try {
+      const payload = {
+        receiverName: formData.receiverName,
+        receiverEmail: formData.receiverEmail || undefined,
+        receiverPhone: formData.receiverPhone,
+        receiverAddress: formData.receiverAddress,
+        parcelType: formData.parcelType,
+        weight: Number(formData.weight),
+        description: formData.description || undefined,
+      }
+
+      await createParcel(payload).unwrap()
+
       onOpenChange(false)
-      // Reset form
+
       setFormData({
         receiverName: '',
         receiverEmail: '',
@@ -47,23 +58,30 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
         weight: '',
         description: '',
       })
-    }, 1000)
+    } catch (error) {
+      console.error("Failed to create parcel:", error)
+    }
   }
 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto gap-0">
+
         {/* Header */}
-        <div className="sticky top-0 flex items-center justify-between p-6 border-b border-border bg-card">
+        <div className="sticky top-0 flex items-center justify-between px-6 pb-4 border-b border-border bg-card">
           <div>
-            <h2 className="text-xl font-bold text-foreground">Create New Parcel</h2>
-            <p className="text-xs text-muted-foreground mt-1">Fill in the parcel details</p>
+            <h2 className="text-xl font-bold text-foreground">
+              Create New Parcel
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Fill in the parcel details
+            </p>
           </div>
           <button
             onClick={() => onOpenChange(false)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -73,7 +91,7 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-2">
+              <label className="block text-xs font-semibold mb-2">
                 Receiver Name *
               </label>
               <input
@@ -82,13 +100,12 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
                 value={formData.receiverName}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="John Doe"
+                className="w-full px-3 py-2 rounded-lg border border-input text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-2">
+              <label className="block text-xs font-semibold mb-2">
                 Phone *
               </label>
               <input
@@ -97,14 +114,13 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
                 value={formData.receiverPhone}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="+880 1712345678"
+                className="w-full px-3 py-2 rounded-lg border border-input text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-2">
+            <label className="block text-xs font-semibold mb-2">
               Email
             </label>
             <input
@@ -112,13 +128,12 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
               name="receiverEmail"
               value={formData.receiverEmail}
               onChange={handleChange}
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="john@example.com"
+              className="w-full px-3 py-2 rounded-lg border border-input text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-2">
+            <label className="block text-xs font-semibold mb-2">
               Address *
             </label>
             <textarea
@@ -127,21 +142,20 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
               onChange={handleChange}
               required
               rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              placeholder="123 Main Street, City, Country"
+              className="w-full px-3 py-2 rounded-lg border border-input text-sm resize-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-2">
+              <label className="block text-xs font-semibold mb-2">
                 Parcel Type *
               </label>
               <select
                 name="parcelType"
                 value={formData.parcelType}
                 onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 rounded-lg border border-input text-sm"
               >
                 <option value="Package">Package</option>
                 <option value="Document">Document</option>
@@ -153,7 +167,7 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-2">
+              <label className="block text-xs font-semibold mb-2">
                 Weight (kg) *
               </label>
               <input
@@ -164,14 +178,13 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
                 required
                 min="0"
                 step="0.1"
-                className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="2.5"
+                className="w-full px-3 py-2 rounded-lg border border-input text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-foreground mb-2">
+            <label className="block text-xs font-semibold mb-2">
               Description
             </label>
             <textarea
@@ -179,27 +192,26 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
               value={formData.description}
               onChange={handleChange}
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              placeholder="Add any special instructions..."
+              className="w-full px-3 py-2 rounded-lg border border-input text-sm resize-none"
             />
           </div>
 
           {/* Fee Preview */}
           <div className="bg-secondary rounded-lg p-4">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Base Fee</span>
-              <span className="font-medium">৳50</span>
+              <span>Base Fee</span>
+              <span>৳50</span>
             </div>
             <div className="flex justify-between text-sm mt-2">
-              <span className="text-muted-foreground">Weight Fee ({formData.weight || '0'} kg)</span>
-              <span className="font-medium">
-                ৳{formData.weight ? (Number(formData.weight) * 20).toFixed(0) : '0'}
+              <span>Weight Fee ({formData.weight || 0} kg)</span>
+              <span>
+                ৳{formData.weight ? Number(formData.weight) * 20 : 0}
               </span>
             </div>
-            <div className="border-t border-border mt-2 pt-2 flex justify-between text-sm font-bold">
+            <div className="border-t mt-2 pt-2 flex justify-between font-bold text-sm">
               <span>Total</span>
               <span>
-                ৳{formData.weight ? (50 + Number(formData.weight) * 20).toFixed(0) : '50'}
+                ৳{formData.weight ? 50 + Number(formData.weight) * 20 : 50}
               </span>
             </div>
           </div>
@@ -210,16 +222,16 @@ export function CreateParcelModal({ open, onOpenChange }: CreateParcelModalProps
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1"
+              className="flex-1 cursor-pointer"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={loading}
-              className="flex-1"
+              disabled={isLoading}
+              className="flex-1 cursor-pointer"
             >
-              {loading ? 'Creating...' : 'Create Parcel'}
+              {isLoading ? "Creating..." : "Create Parcel"}
             </Button>
           </div>
         </form>

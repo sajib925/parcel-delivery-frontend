@@ -2,6 +2,8 @@ import { baseApi } from "@/redux/baseApi"
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+
+
     register: builder.mutation({
       query: (credentials) => ({
         url: "/auth/register",
@@ -28,12 +30,22 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["AUTH"],
     }),
 
+
     getProfile: builder.query({
       query: () => ({
         url: "/auth/profile",
         method: "GET",
       }),
-      providesTags: ["AUTH"],
+      providesTags: ["AUTH", "USER"],
+    }),
+
+    updateProfile: builder.mutation({
+      query: (data) => ({
+        url: "/auth/profile",
+        method: "PATCH",
+        data,
+      }),
+      invalidatesTags: ["AUTH", "USER"],
     }),
 
     changePassword: builder.mutation({
@@ -43,6 +55,7 @@ export const authApi = baseApi.injectEndpoints({
         data,
       }),
     }),
+
     userInfo: builder.query({
       query: () => ({
         url: "/auth/profile",
@@ -51,6 +64,7 @@ export const authApi = baseApi.injectEndpoints({
       providesTags: ["USER"],
     }),
 
+
     getNewAccessToken: builder.mutation({
       query: (refreshToken) => ({
         url: "/auth/refresh-token",
@@ -58,6 +72,7 @@ export const authApi = baseApi.injectEndpoints({
         data: { refreshToken },
       }),
     }),
+
   }),
 })
 
@@ -66,9 +81,8 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useGetProfileQuery,
+  useUpdateProfileMutation, 
   useChangePasswordMutation,
   useGetNewAccessTokenMutation,
-  useUserInfoQuery
+  useUserInfoQuery,
 } = authApi
-
-

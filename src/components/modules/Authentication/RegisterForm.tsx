@@ -62,7 +62,7 @@ export function RegisterForm({ className, ...props }: React.HTMLAttributes<HTMLD
 
       if (res.success && res.data) {
         toast.success("Account created successfully")
-        navigate("/dashboard")
+        navigate("/login")
       }
     } catch (error: any) {
       console.error("[v0] Register error:", error)

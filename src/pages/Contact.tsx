@@ -14,36 +14,43 @@ import { Textarea } from "@/components/ui/textarea"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import image from "../assets/image/contact.jpg"
+import { useCreateContactMutation } from "@/redux/contact/contact.api"
+import { ICreateContactPayload } from "@/types"
 
 export default function Contact() {
-  const form = useForm({
+  const form = useForm<ICreateContactPayload>({
     defaultValues: {
       name: "",
       email: "",
+      subject: "",
       message: "",
     },
   })
 
-  const onSubmit = (data: any) => {
-    console.log(data)
-    toast.success("Message sent successfully")
-    form.reset()
+  const [createContact, { isLoading }] = useCreateContactMutation()
+
+  const onSubmit = async (data: ICreateContactPayload) => {
+    try {
+      await createContact(data).unwrap()
+      toast.success("Message sent successfully 🚀")
+      form.reset()
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || "Something went wrong, try again!"
+      )
+    }
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-16 space-y-16">
+    <div className="max-w-6xl mx-auto px-4 pt-30 lg:pt-40 pb-20 lg:pb-25 space-y-20 lg:space-y-25">
       {/* Top Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        {/* Left Image */}
+        {/* Image */}
         <div className="relative w-full rounded-2xl overflow-hidden shadow-lg">
-          <img
-            src={image} 
-            alt="Contact us"
-            className="object-cover"
-          />
+          <img src={image} alt="Contact us" className="object-cover w-full" />
         </div>
 
-        {/* Right Form */}
+        {/* Form */}
         <div>
           <h1 className="text-4xl font-bold mb-8">Contact Us</h1>
 
@@ -86,6 +93,20 @@ export default function Contact() {
 
               <FormField
                 control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Subject" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="message"
                 render={({ field }) => (
                   <FormItem>
@@ -101,9 +122,10 @@ export default function Contact() {
                   </FormItem>
                 )}
               />
+
               <div className="flex justify-end">
-                <Button type="submit" className="cursor-pointer">
-                  Send Message
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Sending..." : "Send Message"}
                 </Button>
               </div>
             </form>
@@ -111,22 +133,24 @@ export default function Contact() {
         </div>
       </div>
 
-    {/* Delivery Location Section */}
-    <div className="space-y-6">
+      {/* Map Section */}
+     {/* Map Section */}
+    <div className="space-y-6 lg:space-y-12">
       <div className="text-center">
         <h2 className="text-3xl font-bold">Our Delivery Hub</h2>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-4">
           Central operations and parcel handling center in Dhaka
         </p>
       </div>
 
       <div className="w-full h-105 rounded-2xl overflow-hidden shadow-lg">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902178079494!2d90.384253!3d23.750885!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8b8cfa4bdb1%3A0x6f6bdf9c9d7f5b1a!2sDhaka%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1700000000000"
+          src="https://maps.google.com/maps?q=23.750885,90.384253&z=15&output=embed"
           width="100%"
           height="100%"
           loading="lazy"
           className="border-0"
+          referrerPolicy="no-referrer-when-downgrade"
         />
       </div>
     </div>

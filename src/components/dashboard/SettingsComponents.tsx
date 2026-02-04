@@ -1,418 +1,290 @@
 'use client'
 
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { User, Lock } from "lucide-react"
 
-import { useState } from 'react'
-import { Menu, User, Lock, Mail, Phone, MapPin, Camera } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 
-
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
+} from "@/redux/features/auth/auth.api"
 
 export function SettingsComponents() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile')
-  const [isSaving, setIsSaving] = useState(false)
-  const [profileMessage, setProfileMessage] = useState('')
-  const [passwordMessage, setPasswordMessage] = useState('')
+  const [activeTab, setActiveTab] = useState<"profile" | "password">("profile")
+  const [profileMessage, setProfileMessage] = useState("")
+  const [passwordMessage, setPasswordMessage] = useState("")
+  console.log(profileMessage);
 
-  // Mock user data - replace with actual API data
-  const [profileData, setProfileData] = useState({
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+880 1700000000',
-    address: '123 Main Street, Dhaka, Bangladesh',
-    picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
+  /* ================= API ================= */
+
+  const { data, isLoading, isError } = useGetProfileQuery(undefined)
+  const [updateProfile, { isLoading: isProfileSaving }] =
+    useUpdateProfileMutation()
+  const [changePassword, { isLoading: isPasswordSaving }] =
+    useChangePasswordMutation()
+
+  const user = data?.data
+
+  /* ================= STATE ================= */
+
+  const [profileData, setProfileData] = useState<{
+    name: string
+    email: string
+    phone: string
+    address: string
+    picture: string
+    imageFile: File | null
+  }>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    picture: "",
+    imageFile: null,
   })
 
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   })
 
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  /* ================= EFFECT ================= */
+
+  useEffect(() => {
+    if (user) {
+      setProfileData((prev) => ({
+        ...prev,
+        name: user.name ?? "",
+        email: user.email ?? "",
+        phone: user.phone ?? "",
+        address: user.address ?? "",
+        picture:
+          user.picture ??
+          "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
+      }))
+    }
+  }, [user])
+
+//  HANDLERS 
+
+  const handleProfileChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target
-    setProfileData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setProfileData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0]
+  //   if (!file) return
+
+  //   setProfileData((prev) => ({
+  //     ...prev,
+  //     imageFile: file,
+  //     picture: URL.createObjectURL(file),
+  //   }))
+  // }
+
+  const handlePasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setPasswordData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSaving(true)
-    setProfileMessage('')
+    setProfileMessage("")
+
+    const formData = new FormData()
+    formData.append("name", profileData.name)
+    formData.append("phone", profileData.phone)
+    formData.append("address", profileData.address)
+
+    if (profileData.imageFile) {
+      formData.append("image", profileData.imageFile)
+    }
 
     try {
-      // Replace with actual API call to /auth/profile or similar
-      // const response = await updateProfileMutation(profileData).unwrap()
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setProfileMessage('Profile updated successfully!')
-      setTimeout(() => setProfileMessage(''), 3000)
-    } catch (error) {
-      setProfileMessage('Failed to update profile. Please try again.')
-    } finally {
-      setIsSaving(false)
+      await updateProfile(formData).unwrap()
+      setProfileMessage("Profile updated successfully")
+    } catch (err: any) {
+      setProfileMessage(err?.data?.message || "Profile update failed")
     }
   }
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSaving(true)
-    setPasswordMessage('')
+    setPasswordMessage("")
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordMessage('New passwords do not match!')
-      setIsSaving(false)
-      return
-    }
-
-    if (passwordData.newPassword.length < 8) {
-      setPasswordMessage('Password must be at least 8 characters long!')
-      setIsSaving(false)
+      setPasswordMessage("Passwords do not match")
       return
     }
 
     try {
-      // Replace with actual API call using changePasswordMutation
-      // const response = await changePasswordMutation({
-      //   currentPassword: passwordData.currentPassword,
-      //   newPassword: passwordData.newPassword,
-      // }).unwrap()
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setPasswordMessage('Password changed successfully!')
+      await changePassword({
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+      }).unwrap()
+
+      setPasswordMessage("Password changed successfully")
       setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       })
-      setTimeout(() => setPasswordMessage(''), 3000)
-    } catch (error) {
-      setPasswordMessage('Failed to change password. Please try again.')
-    } finally {
-      setIsSaving(false)
+    } catch (err: any) {
+      setPasswordMessage(err?.data?.message || "Password update failed")
     }
   }
 
+  //  UI 
+
+  if (isLoading) return <p className="p-6">Loading profile...</p>
+  if (isError) return <p className="p-6 text-red-500">Failed to load profile</p>
+
   return (
-    <div className="w-full">
+    <div className="w-full max-w-3xl">
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b border-border bg-card">
-        <div className="flex items-center justify-between p-4 lg:p-6">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-sm text-muted-foreground mt-1">Manage your account and preferences</p>
+        <div className=" sticky top-10 z-20 flex justify-between p-4">
+         <div>
+            <h1 className="text-2xl font-bold">Settings</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage your account settings
+            </p>
           </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="lg:hidden bg-transparent"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+        
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant={activeTab === "profile" ? "default" : "outline"}
+              onClick={() => setActiveTab("profile")}
+              className="cursor-pointer"
+            >
+              <User className="w-4 h-4 mr-1" /> Profile
+            </Button>
+            <Button
+              size="sm"
+              variant={activeTab === "password" ? "default" : "outline"}
+              onClick={() => setActiveTab("password")}
+              className="cursor-pointer"
+            >
+              <Lock className="w-4 h-4 mr-1" /> Password
+            </Button>
+          </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 p-4 bg-card border-b border-border overflow-x-auto">
-          <Button
-            onClick={() => setActiveTab('profile')}
-            variant={activeTab === 'profile' ? 'default' : 'outline'}
-            size="sm"
-            className="flex gap-2 bg-transparent whitespace-nowrap"
-          >
-            <User className="w-4 h-4" />
-            Profile
-          </Button>
-          <Button
-            onClick={() => setActiveTab('password')}
-            variant={activeTab === 'password' ? 'default' : 'outline'}
-            size="sm"
-            className="flex gap-2 bg-transparent whitespace-nowrap"
-          >
-            <Lock className="w-4 h-4" />
-            Password
-          </Button>
-        </div>
-      </div>
-
-      {/* Content */}
       <div className="p-4 lg:p-6">
-        {activeTab === 'profile' ? (
-          <div className="max-w-4xl">
-            {/* Profile Picture Section */}
-            <Card className="p-6 mb-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Profile Picture</h2>
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border-2 border-border">
-                  <img
-                    src={profileData.picture || "/placeholder.svg"}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <Button variant="outline" size="sm" className="bg-transparent">
-                    <Camera className="w-4 h-4 mr-2" />
-                    Upload Photo
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    JPG, PNG or GIF. Max size 5MB.
-                  </p>
-                </div>
+        {activeTab === "profile" ? (
+          <Card className="p-6 max-w-3xl">
+            <h2 className="text-lg font-semibold mb-4">
+              Personal Information
+            </h2>
+
+            <form onSubmit={handleProfileSubmit} className="space-y-4">
+              {/* Image */}
+              <div className="flex flex-col items-center gap-4 max-w-50 w-full mx-auto">
+                <img
+                  src={profileData.picture}
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full object-cover border"
+                />
+                {/* <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                /> */}
               </div>
-            </Card>
 
-            {/* Profile Information Form */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Personal Information</h2>
-              <form onSubmit={handleProfileSubmit} className="space-y-4">
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      name="name"
-                      value={profileData.name}
-                      onChange={handleProfileChange}
-                      placeholder="Enter your full name"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
+              {/* Name */}
+              <Input
+                name="name"
+                value={profileData.name}
+                onChange={handleProfileChange}
+                placeholder="Full Name"
+              />
 
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      name="email"
-                      value={profileData.email}
-                      onChange={handleProfileChange}
-                      placeholder="Enter your email"
-                      className="pl-10"
-                      disabled
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
-                </div>
+              {/* Email (disabled) */}
+              <Input
+                name="email"
+                value={profileData.email}
+                disabled
+              />
 
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="tel"
-                      name="phone"
-                      value={profileData.phone}
-                      onChange={handleProfileChange}
-                      placeholder="Enter your phone number"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
+              {/* Phone */}
+              <Input
+                name="phone"
+                value={profileData.phone}
+                onChange={handleProfileChange}
+                placeholder="Phone"
+              />
 
-                {/* Address */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Address
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <textarea
-                      name="address"
-                      value={profileData.address}
-                      onChange={handleProfileChange}
-                      placeholder="Enter your full address"
-                      rows={3}
-                      className="w-full pl-10 pt-3 px-3 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
-                    />
-                  </div>
-                </div>
-
-                {/* Message */}
-                {profileMessage && (
-                  <div className={`p-3 rounded-lg text-sm ${
-                    profileMessage.includes('successfully')
-                      ? 'bg-green-50 text-green-800 border border-green-200'
-                      : 'bg-red-50 text-red-800 border border-red-200'
-                  }`}>
-                    {profileMessage}
-                  </div>
-                )}
-
-                {/* Submit Button */}
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSaving}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="bg-transparent"
-                    onClick={() => {
-                      setProfileData({
-                        name: 'John Doe',
-                        email: 'john@example.com',
-                        phone: '+880 1700000000',
-                        address: '123 Main Street, Dhaka, Bangladesh',
-                        picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-                      })
-                      setProfileMessage('')
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          </div>
+              {/* Address */}
+              <textarea
+                name="address"
+                value={profileData.address}
+                onChange={handleProfileChange}
+                rows={3}
+                className="w-full border rounded-md p-2"
+                placeholder="Address"
+              />
+              <div className="flex justify-end w-full">
+                <Button type="submit" disabled={isProfileSaving} className="cursor-pointer">
+                  {isProfileSaving ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+              
+            </form>
+          </Card>
         ) : (
-          <div className="max-w-2xl">
-            {/* Change Password Form */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Change Password</h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                Update your password to keep your account secure.
-              </p>
+          <Card className="p-6 max-w-xl">
+            <h2 className="text-lg font-semibold mb-4">
+              Change Password
+            </h2>
 
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                {/* Current Password */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      name="currentPassword"
-                      value={passwordData.currentPassword}
-                      onChange={handlePasswordChange}
-                      placeholder="Enter your current password"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <Input
+                type="password"
+                name="oldPassword"
+                value={passwordData.oldPassword}
+                onChange={handlePasswordChange}
+                placeholder="Current Password"
+              />
 
-                {/* New Password */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    New Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      name="newPassword"
-                      value={passwordData.newPassword}
-                      onChange={handlePasswordChange}
-                      placeholder="Enter your new password"
-                      className="pl-10"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Must be at least 8 characters long
-                  </p>
-                </div>
+              <Input
+                type="password"
+                name="newPassword"
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+                placeholder="New Password"
+              />
 
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Confirm New Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      name="confirmPassword"
-                      value={passwordData.confirmPassword}
-                      onChange={handlePasswordChange}
-                      placeholder="Confirm your new password"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
+              <Input
+                type="password"
+                name="confirmPassword"
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+                placeholder="Confirm Password"
+              />
 
-                {/* Message */}
-                {passwordMessage && (
-                  <div className={`p-3 rounded-lg text-sm ${
-                    passwordMessage.includes('successfully')
-                      ? 'bg-green-50 text-green-800 border border-green-200'
-                      : 'bg-red-50 text-red-800 border border-red-200'
-                  }`}>
-                    {passwordMessage}
-                  </div>
-                )}
-
-                {/* Submit Button */}
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSaving}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    {isSaving ? 'Updating...' : 'Update Password'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="bg-transparent"
-                    onClick={() => {
-                      setPasswordData({
-                        currentPassword: '',
-                        newPassword: '',
-                        confirmPassword: '',
-                      })
-                      setPasswordMessage('')
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-
-              {/* Security Tips */}
-              <div className="mt-8 p-4 bg-muted/50 rounded-lg border border-border">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Password Security Tips:</h3>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• Use a mix of uppercase and lowercase letters</li>
-                  <li>• Include numbers and special characters</li>
-                  <li>• Avoid using personal information</li>
-                  <li>• Don&apos;t reuse passwords from other accounts</li>
-                </ul>
+              {passwordMessage && (
+                <p className="text-sm text-green-600">
+                  {passwordMessage}
+                </p>
+              )}
+              <div className="flex justify-end w-full">
+                <Button type="submit" disabled={isPasswordSaving} className="cursor-pointer">
+                  {isPasswordSaving ? "Updating..." : "Update Password"}
+                </Button>
               </div>
-            </Card>
-          </div>
+            </form>
+          </Card>
         )}
       </div>
     </div>
